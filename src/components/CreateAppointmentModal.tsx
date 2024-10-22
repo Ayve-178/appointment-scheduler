@@ -66,8 +66,8 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     e.preventDefault();
 
     createAppointment({
-      schedulerName: formData.schedulerName,
-      holderName: formData.holderName,
+      schedulerName: schedulerName,
+      holderName: holderName,
       title: formData.title,
       description: formData.description,
       //@ts-ignore
