@@ -1,17 +1,17 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import AppointmentCard from "../components/AppointmentCard";
 import { useAuth } from "../contexts/AuthContext";
-import { getAllUsers } from "../config/firestoreConfig";
+// import { getAllUsers } from "../config/firestoreConfig";
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
-  const getUsers = async () => {
-    const users = await getAllUsers();
-    console.log('users---------------', users);
-  }
+  // const getUsers = async () => {
+  //   const users = await getAllUsers();
+  //   console.log('users---------------', users);
+  // }
 
   useEffect(() => {
     if (!currentUser) {
@@ -44,7 +44,8 @@ const Home: React.FC = () => {
           />
         </div>
       )}
-      <button onClick={getUsers}>Get users</button>
+      {/* <button onClick={getUsers}>Get users</button> */}
+      <Link to="/users">Get Users</Link>
     </>
   );
 };
