@@ -4,12 +4,13 @@ export type User = {
 };
 
 export interface Appointment {
-  schedulerUid: string;
-  holderUid: string;
+  schedulerName: string;
+  holderName: string;
   title: string;
   description: string;
   date: string;
   time: string;
+  duration: string;
   audioFileUrl: string;
   createdAt?: Date;
 };
