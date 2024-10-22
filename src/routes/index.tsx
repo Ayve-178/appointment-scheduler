@@ -6,6 +6,7 @@ import NotFound from '../pages/NotFound';
 import Users from '../pages/Users';
 // import CreateAppointment from '../pages/CreateAppointment';
 import AppointmentForm from '../pages/AppointmentCreate';
+import Appointments from '../pages/Appointments';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/registration" element={<Registration />} />
       <Route path="/users" element={<Users />} />      
       <Route path="/createAppointment" element={<AppointmentForm />} />      
+      <Route path="/appointments" element={<Appointments />} />      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
