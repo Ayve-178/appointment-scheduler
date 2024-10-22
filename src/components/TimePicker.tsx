@@ -1,11 +1,12 @@
 import React from "react";
 
 interface TimePickerProps {
+    name: string;
     time: string;
     onTimeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   }
 
-const TimePicker: React.FC<TimePickerProps> = ({time, onTimeChange}) => {
+const TimePicker: React.FC<TimePickerProps> = ({name, time, onTimeChange}) => {
   return (
     <>
       <form className="max-w-[8rem] mx-auto">
@@ -34,6 +35,7 @@ const TimePicker: React.FC<TimePickerProps> = ({time, onTimeChange}) => {
           <input
             type="time"
             id="time"
+            name={name}
             className="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             min="09:00"
             value={time}

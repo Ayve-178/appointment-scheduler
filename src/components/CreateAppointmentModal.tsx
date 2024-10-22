@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useState, useRef } from "react";
 import {
   Modal,
@@ -8,6 +9,7 @@ import {
   FileInput,
   Button,
 } from "flowbite-react";
+import { createAppointment } from "../config/firestoreConfig";
 import TimePicker from "./TimePicker";
 import { HiUpload } from "react-icons/hi";
 import { TiDelete } from "react-icons/ti";
@@ -15,15 +17,38 @@ import { TiDelete } from "react-icons/ti";
 interface CreateAppointmentModalProps {
   openModal: boolean;
   handleCloseModal: any;
+  schedulerName: any;
+  holderName: any;
 }
 
 const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   openModal,
   handleCloseModal,
+  schedulerName,
+  holderName,
 }) => {
-  const [time, setTime] = useState<string>("00:00");
+  const [formData, setFormData] = useState({
+    schedulerName: schedulerName,
+    holderName: holderName,
+    title: "",
+    description: "",
+    date: new Date(),
+    time: "",
+    duration: "",
+    audioFileUrl: "",
+  });
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: any) => {
+    if (!e.target) return;
+    const { name, value, type, files } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: type === "file" ? files[0] : value,
+    }));
+  };
 
   const handleClick = () => {
     if (fileInputRef.current) {
@@ -37,8 +62,21 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     console.log("File selected:", file);
   };
 
-  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTime(event.target.value);
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    createAppointment({
+      schedulerUid: formData.schedulerName,
+      holderUid: formData.holderName,
+      title: formData.title,
+      description: formData.description,
+      //@ts-ignore
+      date: formData.date,
+      time: formData.time,
+      duration: formData.duration,
+      //@ts-ignore
+      audioFileUrl: selectedFile,
+    });
   };
 
   return (
@@ -54,28 +92,52 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
               <div className="block">
                 <Label htmlFor="scheduler" value="Scheduler" />
               </div>
-              <TextInput id="scheduler" value="Scheduler Name" readOnly />
+              <TextInput id="scheduler" value={schedulerName} readOnly />
             </div>
             <div>
               <div className="block">
                 <Label htmlFor="holder" value="Holder" />
               </div>
-              <TextInput id="holder" value="Holder Name" readOnly />
+              <TextInput id="holder" value={holderName} readOnly />
             </div>
           </div>
           <div>
-            <TextInput id="title" type="text" placeholder="Title" required />
+            <TextInput
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div>
-            <Textarea id="description" placeholder="Description" required />
+            <Textarea
+              id="description"
+              name="description"
+              className="resize-none"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="flex gap-x-2">
-            <Datepicker minDate={new Date()} />
-            <TimePicker time={time} onTimeChange={handleTimeChange} />
+            <Datepicker
+              name="date"
+              minDate={new Date()}
+              value={formData.date}
+              onChange={handleChange}
+            />
+            <TimePicker name="time" time={formData.time} onTimeChange={handleChange} />
             <TextInput
               id="duration"
+              name="duration"
               type="text"
               placeholder="Duration"
+              value={formData.duration}
+              onChange={handleChange}
               required
             />
           </div>
@@ -102,7 +164,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             )}
           </div>
           <div className="flex justify-end">
-            <Button className="bg-gray-800 w-32">Schedule</Button>
+            <Button className="bg-gray-800 w-32" onClick={handleSubmit}>Schedule</Button>
           </div>
         </div>
       </Modal.Body>

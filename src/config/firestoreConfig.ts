@@ -1,4 +1,4 @@
-import { doc, setDoc, getDocs, collection, addDoc, query, orderBy, startAt, endAt } from "firebase/firestore";
+import { doc, setDoc, getDocs, collection, addDoc, query, where, orderBy, startAt, endAt } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { Appointment } from "../types";
 
@@ -37,6 +37,21 @@ export const searchUsers = async (term: string) => {
     return [];
   }
 };
+
+export const getUsernameByUid =  async (uid:string) => {
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("uid", "==", uid));
+  const querySnapshot = await getDocs(q);
+
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0]; 
+    console.log("Username:", doc.data().username);
+    return doc.data().username;
+  } else {
+    console.log("No user found with the given UID.");
+    return null;
+  }
+}
 
 
 export const createAppointment = async (appointmentData: Appointment) => {

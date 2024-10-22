@@ -4,7 +4,11 @@
 import { useEffect, useState } from "react";
 
 import { useAuth } from "../contexts/AuthContext";
-import { getAllUsers, searchUsers } from "../config/firestoreConfig";
+import {
+  getAllUsers,
+  getUsernameByUid,
+  searchUsers,
+} from "../config/firestoreConfig";
 import { User } from "../types";
 import UserCard from "../components/UserCard";
 import SearchInput from "../components/SearchInput";
@@ -17,13 +21,23 @@ const Users: React.FC = () => {
   const [users, setUsers] = useState([]);
   const [searchVal, setSearchVal] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [schedulerName, setSchedulerName] = useState("");
+  const [holderName, setHolderName] = useState("");
 
   const handleCloseModal = () => {
     setOpenModal(false);
   };
 
-  const handleAppointmentBook = () => {
+  const handleAppointmentBook = async (holderUid: string) => {
+    //@ts-ignore
+    console.log('uuuuiiiiiddd', currentUser.uid, holderUid);
     setOpenModal(true);
+    //@ts-ignore
+    const sName = await getUsernameByUid(currentUser.uid);
+    const hName = await getUsernameByUid(holderUid);
+    console.log(sName, hName);
+    setSchedulerName(sName || "unknown");
+    setHolderName(hName || "unknown");
   };
 
   const fetchUsers = async () => {
@@ -76,10 +90,20 @@ const Users: React.FC = () => {
         <div className="flex flex-wrap justify-center content-center gap-8 mt-5">
           {users &&
             users.length > 0 &&
-            users.map((user: User) => <UserCard user={user} handleAppointmentBook={handleAppointmentBook} />)}
+            users.map((user: User) => (
+              <UserCard
+                user={user}
+                handleAppointmentBook={handleAppointmentBook}
+              />
+            ))}
         </div>
       )}
-      <CreateAppointmentModal openModal={openModal} handleCloseModal={handleCloseModal} />
+      <CreateAppointmentModal
+        openModal={openModal}
+        handleCloseModal={handleCloseModal}
+        schedulerName={schedulerName}
+        holderName={holderName}
+      />
     </div>
   );
 };

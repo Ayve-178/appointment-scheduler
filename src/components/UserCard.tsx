@@ -20,7 +20,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, handleAppointmentBook }) => {
           <p className="text-normal font-semibold">{user.username}</p>
           <p
             className="cursor-pointer text-sm underline hover:text-gray-600 hover:decoration-gray-600"
-            onClick={handleAppointmentBook}
+            onClick={() => handleAppointmentBook(user.uid)}
           >
             Book Appointment
           </p>
