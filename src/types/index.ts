@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export type User = {
   uid: string;
   username: string;
@@ -6,7 +8,7 @@ export type User = {
 export interface FormData {
   title: string;
   description: string;
-  date: string;
+  date: Date;
   time: string;
   duration: number | null;
 }
@@ -16,10 +18,10 @@ export interface Appointment {
   holderName: string;
   title: string;
   description: string;
-  date: string;
+  date: Date;
   time: string;
   duration: number | null;
-  endTime: string;
+  endTime: Timestamp;
   audioFileUrl: string;
   status: string;
   createdAt?: Date;

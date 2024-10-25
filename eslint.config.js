@@ -25,6 +25,7 @@ export default tseslint.config(
       ],
       'react-refresh/only-export-components': 0,
       '@typescript-eslint/no-explicit-any': 0,
+      'react-hooks/exhaustive-deps': 0,
     },
   },
 )

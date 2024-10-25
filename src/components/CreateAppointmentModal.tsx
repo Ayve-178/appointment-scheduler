@@ -29,7 +29,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date(),
     time: "",
     duration: null,
   });
@@ -81,7 +81,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     setFormData({
       title: "",
       description: "",
-      date: new Date().toISOString().split("T")[0],
+      date: new Date(),
       time: "",
       duration: null,
     });

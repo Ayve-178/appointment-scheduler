@@ -1,103 +1,145 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useLocation } from "react-router-dom";
 import { Table } from "flowbite-react";
-import { MdOutlineDone } from "react-icons/md";
-import { IoClose } from "react-icons/io5";
-import { MdPendingActions } from "react-icons/md";
-import { TbClockCancel } from "react-icons/tb";
-import AppointmentStatus from "../components/AppointmentStatus";
-import { useState } from "react";
-import { getAppointmentsByCondition } from "../config/firestoreConfig";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  getPastSessions,
+  getReceivedInvitations,
+  getScheduledSessions,
+  getSentInvitations,
+  getUsernameByUid,
+} from "../config/firestoreConfig";
+import AppointmentStatus from "../components/AppointmentStatus";
+import { Timestamp } from "firebase/firestore";
 
 const Appointments: React.FC = () => {
   const location = useLocation();
-  const { category } = location.state || {}; 
-  const {currentUser} = useAuth();
+  const { category } = location.state || {};
+  const { currentUser } = useAuth();
+  const [username, setUsername] = useState(null);
   const [appointmentList, setAppointmentList] = useState([]);
-  console.log(category, appointmentList, "---------ap-----------");
 
-  const fetchAppointments = async () => {
-    const fetchedAppointments = await getAppointmentsByCondition(
-      category,
-      currentUser.uid,
-    );
+  const getAppointmentStatus = (category: string, appointment: any) => {
+    if (category === "past") {
+      return <AppointmentStatus status={appointment.status} />;
+    } else if (category === "scheduled") {
+      return <AppointmentStatus status="accepted" />;
+    } else if (category === 'invite_received') {
+      if (appointment.status === "pending") {
+        return <><AppointmentStatus status="accept" /><AppointmentStatus status="decline" /></>
+      } else {
+        return <AppointmentStatus status={appointment.status} />;
+      }
+    } else if (category === 'invite_sent') {
+      if (appointment.status === "pending") {
+        return <><AppointmentStatus status="pending" /><AppointmentStatus status="cancel" /></>
+      } else if (appointment.status === "cancelled") {
+        return <AppointmentStatus status={appointment.status} />;
+      } else {
+        return <><AppointmentStatus status={appointment.status} /><AppointmentStatus status="cancel" /></>
+      }
+    }
+  };
+
+  const fetchPastSessions = async () => {
+    //@ts-ignore
+    const fetchedAppointments = await getPastSessions(username);
+    console.log(fetchedAppointments);
     //@ts-ignore
     setAppointmentList(fetchedAppointments);
   };
 
-  if (category) {
-    fetchAppointments();
-  }
+  const fetchScheduledSessions = async () => {
+    //@ts-ignore
+    const fetchedAppointments = await getScheduledSessions(username);
+    console.log(fetchedAppointments);
+    //@ts-ignore
+    setAppointmentList(fetchedAppointments);
+  };
+
+  const fetchReceivedInvitations = async () => {
+    //@ts-ignore
+    const fetchedAppointments = await getReceivedInvitations(username);
+    console.log(fetchedAppointments);
+    //@ts-ignore
+    setAppointmentList(fetchedAppointments);
+  };
+
+  const fetchSentInvitations = async () => {
+    //@ts-ignore
+    const fetchedAppointments = await getSentInvitations(username);
+    console.log(fetchedAppointments);
+    //@ts-ignore
+    setAppointmentList(fetchedAppointments);
+  };
+
+  const getCurrentUserName = async () => {
+    //@ts-ignore
+    const currentUserName = await getUsernameByUid(currentUser.uid);
+    console.log(currentUserName);
+    setUsername(currentUserName);
+  };
+
+  const getDate = (date: Date | string | Timestamp) => {
+    const validDate =
+      date instanceof Timestamp
+        ? date.toDate()
+        : typeof date === "string"
+        ? new Date(date)
+        : date;
+    const dateNew = `${validDate.getFullYear()}-${String(
+      validDate.getMonth() + 1
+    ).padStart(2, "0")}-${String(validDate.getDate()).padStart(2, "0")}`;
+    return dateNew;
+  };
+
+  useEffect(() => {
+    if (category === "past") {
+      fetchPastSessions();
+    } else if (category === "scheduled") {
+      fetchScheduledSessions();
+    } else if (category === "invite_received") {
+      fetchReceivedInvitations();
+    } else if (category === "invite_sent") {
+      fetchSentInvitations();
+    }
+  }, [category, username]);
+
+  useEffect(() => {
+    getCurrentUserName();
+  }, [currentUser]);
 
   return (
     <div className="overflow-x-auto p-10">
-      <Table hoverable>
-        <Table.Head>
-          {(category === "completed" || category === "invited") && (
+      {(appointmentList && appointmentList.length > 0 && (
+        <Table hoverable>
+          <Table.Head>
             <Table.HeadCell>Scheduler</Table.HeadCell>
-          )}
-          {(category === "completed" || category === "invited") && (
             <Table.HeadCell>Holder</Table.HeadCell>
-          )}
-          <Table.HeadCell>Title</Table.HeadCell>
-          <Table.HeadCell>Date</Table.HeadCell>
-          <Table.HeadCell>Time</Table.HeadCell>
-          <Table.HeadCell>Duration</Table.HeadCell>
-          <Table.HeadCell>Action</Table.HeadCell>
-        </Table.Head>
-        <Table.Body className="divide-y">
-          <Table.Row className="bg-white">
-            {(category === "completed" || category === "invited") && <Table.Cell>ayve178</Table.Cell>}
-            {(category === "completed" || category === "scheduled") && <Table.Cell>abir123</Table.Cell>}
-            <Table.Cell>Test Appointment</Table.Cell>
-            <Table.Cell>23-10-204</Table.Cell>
-            <Table.Cell>10:00 AM</Table.Cell>
-            <Table.Cell>15m</Table.Cell>
-            <Table.Cell className="flex gap-x-1">
-              <span className="flex text-green-500 border rounded-sm border-green-500 px-2 py-1 gap-x-1">
-                <MdOutlineDone className="w-5 h-5" />
-                <span>Accept</span>
-              </span>
-              <span className="flex text-red-600 border rounded-sm border-red-600 px-2 py-1 gap-x-1">
-                <IoClose className="w-5 h-5" />
-                Decline
-              </span>
-            </Table.Cell>
-          </Table.Row>
-
-          <Table.Row className="bg-white">
-            {(category === "completed" || category === "invited") && <Table.Cell>ayve111</Table.Cell>}
-            {(category === "completed" || category === "scheduled") && <Table.Cell>abir111</Table.Cell>}
-            <Table.Cell>Test Appointment</Table.Cell>
-            <Table.Cell>23-10-204</Table.Cell>
-            <Table.Cell>10:00 AM</Table.Cell>
-            <Table.Cell>15m</Table.Cell>
-            <Table.Cell className="flex gap-x-1">
-              <span className="flex text-blue-500 border rounded-sm border-blue-500 px-2 py-1 gap-x-1">
-                <MdPendingActions className="w-5 h-5" />
-                <span>Pending</span>
-              </span>
-              <span className="flex text-gray-600 border rounded-sm border-gray-600 px-2 py-1 gap-x-1">
-                <TbClockCancel className="w-5 h-5" />
-                Cancel
-              </span>
-            </Table.Cell>
-          </Table.Row>
-
-          <Table.Row className="bg-white">
-            {(category === "completed" || category === "invited") && <Table.Cell>ayve178</Table.Cell>}
-            {(category === "completed" || category === "scheduled") && <Table.Cell>abir123</Table.Cell>}
-            <Table.Cell>Test Appointment</Table.Cell>
-            <Table.Cell>23-10-204</Table.Cell>
-            <Table.Cell>10:00 AM</Table.Cell>
-            <Table.Cell>15m</Table.Cell>
-            <Table.Cell className="flex gap-x-1">
-              <AppointmentStatus status="completed" />
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
+            <Table.HeadCell>Title</Table.HeadCell>
+            <Table.HeadCell>Date</Table.HeadCell>
+            <Table.HeadCell>Time</Table.HeadCell>
+            <Table.HeadCell>Duration</Table.HeadCell>
+            <Table.HeadCell>Action</Table.HeadCell>
+          </Table.Head>
+          <Table.Body className="divide-y">
+            {appointmentList.map((appointment: any) => (
+              <Table.Row className="bg-white">
+                <Table.Cell>{appointment.schedulerName}</Table.Cell>
+                <Table.Cell>{appointment.holderName}</Table.Cell>
+                <Table.Cell>{appointment.title}</Table.Cell>
+                <Table.Cell>{getDate(appointment.date)}</Table.Cell>
+                <Table.Cell>{appointment.time}</Table.Cell>
+                <Table.Cell>{appointment.duration}</Table.Cell>
+                <Table.Cell className="flex gap-x-1">
+                  {getAppointmentStatus(category, appointment)}
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      )) || <div>No data available</div>}
     </div>
   );
 };

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable react-hooks/exhaustive-deps */
 // import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -16,6 +15,7 @@ import CreateAppointmentModal from "../components/CreateAppointmentModal";
 import { createAppointment, uploadAudioFile } from "../config/firestoreConfig";
 import ToastContainer from "../components/ToastContainer";
 import { HiCheck, HiX } from "react-icons/hi";
+import { Timestamp } from "firebase/firestore";
 
 const Users: React.FC = () => {
   const { currentUser } = useAuth();
@@ -34,7 +34,6 @@ const Users: React.FC = () => {
   };
 
   const handleAppointmentBook = async (holderUid: string) => {
-    //@ts-ignore
     setOpenModal(true);
     //@ts-ignore
     const sName = await getUsernameByUid(currentUser.uid);
@@ -46,27 +45,16 @@ const Users: React.FC = () => {
 
   const calculateEndTime = (
     startTime: string,
-    durationMinutes: number | null
+    durationMinutes: number | null,
+    date: Date
   ) => {
-    const [hours, minutes] = startTime.split(":").map(Number);
+    const dateNew = date.getFullYear()+'-' + (date.getMonth()+1) + '-'+date.getDate();
+    const startDateTimeString = `${dateNew}T${startTime}:00`; 
+    const startDateTime = new Date(startDateTimeString);
 
-    const duration = durationMinutes ?? 0;
-
-    let endHours = hours;
-    let endMinutes = minutes + +duration;
-
-    while (endMinutes >= 60) {
-      endHours++;
-      endMinutes -= 60;
-      if (endHours > 23) {
-        endHours = 0;
-      }
-    }
-
-    const endHourStr = endHours.toString().padStart(2, "0");
-    const endMinuteStr = endMinutes.toString().padStart(2, "0");
-
-    return `${endHourStr}:${endMinuteStr}`;
+    const endDateTime = new Date(startDateTime.getTime() + +(durationMinutes ?? 0) * 60000); 
+    const endTime = Timestamp.fromDate(endDateTime);
+    return endTime;
   };
 
   const handleAppointmentCreate = async (
@@ -86,7 +74,11 @@ const Users: React.FC = () => {
         date: formData.date,
         time: formData.time,
         duration: formData.duration,
-        endTime: calculateEndTime(formData.time, formData.duration),
+        endTime: calculateEndTime(
+          formData.time,
+          formData.duration,
+          formData.date
+        ),
         audioFileUrl: audioUrl || "",
         status: "pending",
       });
@@ -171,21 +163,21 @@ const Users: React.FC = () => {
       />
       {showToast && (
         <div className="fixed top-4 right-4 z-100">
-        <ToastContainer
-          status={errMsg ? "danger" : "success"}
-          icon={
-            errMsg ? (
-              <HiX className="w-5 h-5" />
-            ) : (
-              <HiCheck className="h-5 w-5" />
-            )
-          }
-          message={
-            errMsg
-              ? "Something went wrong. Please try again!"
-              : "Appointment Created Successfully!"
-          }
-        />
+          <ToastContainer
+            status={errMsg ? "danger" : "success"}
+            icon={
+              errMsg ? (
+                <HiX className="w-5 h-5" />
+              ) : (
+                <HiCheck className="h-5 w-5" />
+              )
+            }
+            message={
+              errMsg
+                ? "Something went wrong. Please try again!"
+                : "Appointment Created Successfully!"
+            }
+          />
         </div>
       )}
     </div>

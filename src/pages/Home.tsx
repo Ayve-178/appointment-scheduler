@@ -29,7 +29,7 @@ const Home: React.FC = () => {
             appointmentType="Past Sessions"
             description="A record of all the sessions that have been completed successfully."
             buttonText="View Sessions"
-            category="completed"
+            category="past"
           />
           <AppointmentCard
             count={10}
@@ -40,10 +40,17 @@ const Home: React.FC = () => {
           />
           <AppointmentCard
             count={8}
-            appointmentType="Invitations to Attend"
+            appointmentType="Invitations Received"
             description="The appointments where you've been invited as a participant."
-            buttonText="View Invitations"
-            category="invited"
+            buttonText="View Received Invitations"
+            category="invite_received"
+          />
+          <AppointmentCard
+            count={3}
+            appointmentType="Invitations Sent"
+            description="The appointments where you've been invited as a participant."
+            buttonText="View Sent Invitations"
+            category="invite_sent"
           />
         </div>
       )}

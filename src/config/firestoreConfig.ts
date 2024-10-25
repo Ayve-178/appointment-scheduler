@@ -9,6 +9,7 @@ import {
   orderBy,
   startAt,
   endAt,
+  Timestamp,
 } from "firebase/firestore";
 import { db, storage } from "./firebaseConfig";
 import { Appointment } from "../types";
@@ -77,24 +78,116 @@ export const uploadAudioFile = async (file:File) => {
   return downloadURL;
 }
 
-export const getAppointmentsByCondition = async (
-  category: string,
-  uid: string
-) => {
-  const q = query(
+export const getPastSessions = async (username:string) => {
+  const currentTime = Timestamp.fromDate(new Date());
+  
+  let q = query(
     collection(db, "appointments"),
-    where("status", "==", category),
-    where("uid", "==", uid)
+    where("schedulerName", "==", username),
+    where("endTime", "<", currentTime)
   );
 
-  const querySnapshot = await getDocs(q);
+  let querySnapshot = await getDocs(q);
 
-  const appointments = querySnapshot.docs.map((doc) => ({
+  const scheduledAppointments = querySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
 
-  console.log("----------doc---", appointments);
-  return appointments;
+  q = query(
+    collection(db, "appointments"),
+    where("holderName", "==", username),
+    where("endTime", "<", currentTime)
+  );
+
+  querySnapshot = await getDocs(q);
+
+  const receivedAppointments = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  const pastSessions = [
+    ...scheduledAppointments,
+    ...receivedAppointments,
+  ];
+  return pastSessions;
 };
+
+export const getScheduledSessions = async (username:string) => {
+  const currentTime = Timestamp.fromDate(new Date());
+  
+  let q = query(
+    collection(db, "appointments"),
+    where("schedulerName", "==", username),
+    where("endTime", ">", currentTime),
+    where("status", "==", "accepted")
+  );
+
+  let querySnapshot = await getDocs(q);
+
+  const scheduledAppointments = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  q = query(
+    collection(db, "appointments"),
+    where("holderName", "==", username),
+    where("endTime", ">", currentTime),
+    where("status", "==", "accepted")
+  );
+
+  querySnapshot = await getDocs(q);
+
+  const receivedAppointments = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  const scheduledSessions = [
+    ...scheduledAppointments,
+    ...receivedAppointments,
+  ];
+  return scheduledSessions;
+}
+
+export const getReceivedInvitations = async (username:string) => {
+  const currentTime = Timestamp.fromDate(new Date());
+  
+  const q = query(
+    collection(db, "appointments"),
+    where("holderName", "==", username),
+    where("endTime", ">", currentTime),
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  const receivedInvitations = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return receivedInvitations;
+}
+
+export const getSentInvitations = async (username:string) => {
+  const currentTime = Timestamp.fromDate(new Date());
+  
+  const q = query(
+    collection(db, "appointments"),
+    where("schedulerName", "==", username),
+    where("endTime", ">", currentTime),
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  const sentInvitations = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  return sentInvitations;
+}
+
 
