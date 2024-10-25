@@ -29,18 +29,21 @@ const Home: React.FC = () => {
             appointmentType="Past Sessions"
             description="A record of all the sessions that have been completed successfully."
             buttonText="View Sessions"
+            category="completed"
           />
           <AppointmentCard
             count={10}
             appointmentType="Scheduled Appointments"
             description="View the upcoming appointments that are already planned and scheduled."
             buttonText="View Appointments"
+            category="scheduled"
           />
           <AppointmentCard
             count={8}
             appointmentType="Invitations to Attend"
             description="The appointments where you've been invited as a participant."
             buttonText="View Invitations"
+            category="invited"
           />
         </div>
       )}

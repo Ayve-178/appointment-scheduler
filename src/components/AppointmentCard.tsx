@@ -7,9 +7,16 @@ interface AppointmentCardProps {
   appointmentType: string;
   description: string;
   buttonText: string;
+  category: string;
 }
 
-const AppointmentCard: React.FC<AppointmentCardProps> = ({count, appointmentType, description, buttonText}) => {
+const AppointmentCard: React.FC<AppointmentCardProps> = ({
+  count,
+  appointmentType,
+  description,
+  buttonText,
+  category,
+}) => {
   return (
     <Card className="w-[350px] text-center">
       <h5 className="text-3xl text-center font-bold tracking-tight text-gray-900">
@@ -17,7 +24,15 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({count, appointmentType
       </h5>
       <p className="font-semibold text-lg text-gray-700">{appointmentType}</p>
       <p className="font-normal text-[15px] text-gray-700">{description}</p>
-      <Link to="#" className="text-[13px] underline">{buttonText}</Link>
+      <Link
+        to={{
+          pathname: "/appointments",
+        }}
+        state={{ category }}
+        className="text-[13px] underline"
+      >
+        {buttonText}
+      </Link>
     </Card>
   );
 };

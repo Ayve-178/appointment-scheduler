@@ -4,7 +4,6 @@ import Login from '../pages/Login';
 import Registration from '../pages/Registration';
 import NotFound from '../pages/NotFound';
 import Users from '../pages/Users';
-// import CreateAppointment from '../pages/CreateAppointment';
 import AppointmentForm from '../pages/AppointmentCreate';
 import Appointments from '../pages/Appointments';
 

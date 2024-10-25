@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useState, useRef } from "react";
 import {
   Modal,
@@ -9,16 +8,15 @@ import {
   FileInput,
   Button,
 } from "flowbite-react";
-import { createAppointment } from "../config/firestoreConfig";
 import TimePicker from "./TimePicker";
 import { HiUpload } from "react-icons/hi";
 import { TiDelete } from "react-icons/ti";
-
 interface CreateAppointmentModalProps {
   openModal: boolean;
-  handleCloseModal: any;
-  schedulerName: any;
-  holderName: any;
+  handleCloseModal: () => void;
+  schedulerName: string;
+  holderName: string;
+  handleAppointmentCreate: any;
 }
 
 const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
@@ -26,27 +24,26 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   handleCloseModal,
   schedulerName,
   holderName,
+  handleAppointmentCreate,
 }) => {
   const [formData, setFormData] = useState({
-    schedulerName: schedulerName,
-    holderName: holderName,
     title: "",
     description: "",
-    date: new Date(),
+    date: new Date().toISOString().split("T")[0],
     time: "",
-    duration: "",
-    audioFileUrl: "",
+    duration: null,
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
 
   const handleChange = (e: any) => {
     if (!e.target) return;
-    const { name, value, type, files } = e.target;
+    const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: type === "file" ? files[0] : value,
+      [name]: value,
     }));
   };
 
@@ -62,21 +59,33 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     console.log("File selected:", file);
   };
 
-  const handleSubmit = (e: any) => {
+  const handleFileDelete = () => {
+    setSelectedFile(null);
+  };
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    createAppointment({
-      schedulerName: schedulerName,
-      holderName: holderName,
-      title: formData.title,
-      description: formData.description,
-      //@ts-ignore
-      date: formData.date,
-      time: formData.time,
-      duration: formData.duration,
-      //@ts-ignore
-      audioFileUrl: selectedFile,
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.date ||
+      !formData.time ||
+      formData.duration === null
+    ) {
+      setWarning("Please fill out all the necessary fields!");
+      return;
+    }
+
+    handleAppointmentCreate(formData, selectedFile);
+    setFormData({
+      title: "",
+      description: "",
+      date: new Date().toISOString().split("T")[0],
+      time: "",
+      duration: null,
     });
+    setSelectedFile(null);
   };
 
   return (
@@ -127,32 +136,42 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             <Datepicker
               name="date"
               minDate={new Date()}
-              value={formData.date}
-              onChange={handleChange}
+              value={formData.date ? new Date(formData.date) : null}
+              onChange={(date: Date | null) =>
+                handleChange({ target: { name: "date", value: date } })
+              }
             />
-            <TimePicker name="time" time={formData.time} onTimeChange={handleChange} />
+            <TimePicker
+              name="time"
+              time={formData.time}
+              onTimeChange={handleChange}
+            />
             <TextInput
               id="duration"
               name="duration"
-              type="text"
-              placeholder="Duration"
-              value={formData.duration}
+              type="number"
+              placeholder="Duration (m)"
+              value={formData.duration ?? ''}
               onChange={handleChange}
               required
             />
           </div>
           <div className="flex text-gray-500" onClick={handleClick}>
             {(selectedFile && (
-              <>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  {selectedFile.name}
+              <div className="flex border-2 px-2 py-1 rounded-md">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedFile?.name}
                 </p>
-                <TiDelete className="text-gray-500 mt-3 ml-1" />
-              </>
+                <TiDelete
+                  className="text-gray-500 ml-1 mt-0.5 cursor-pointer"
+                  onClick={handleFileDelete}
+                />
+              </div>
             )) || (
               <div className="flex cursor-pointer">
                 <FileInput
                   ref={fileInputRef}
+                  name="audioFile"
                   onChange={handleFileChange}
                   style={{ display: "none" }}
                   accept="audio/*"
@@ -164,8 +183,11 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             )}
           </div>
           <div className="flex justify-end">
-            <Button className="bg-gray-800 w-32" onClick={handleSubmit}>Schedule</Button>
+            <Button className="bg-gray-800 w-32" onClick={handleSubmit}>
+              Schedule
+            </Button>
           </div>
+          {warning && <p className="text-sm text-red-600 text-center mt-3">{warning}</p>}
         </div>
       </Modal.Body>
     </Modal>
