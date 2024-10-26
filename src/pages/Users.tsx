@@ -6,12 +6,13 @@ import {
   getAllUsers,
   getUsernameByUid,
   searchUsers,
-} from "../config/firestoreConfig";
+  createAppointment,
+  uploadAudioFile
+} from "../config/firestoreRepos";
 import { User, FormData } from "../types";
 import UserCard from "../components/UserCard";
 import SearchInput from "../components/SearchInput";
 import CreateAppointmentModal from "../components/CreateAppointmentModal";
-import { createAppointment, uploadAudioFile } from "../config/firestoreConfig";
 import ToastContainer from "../components/ToastContainer";
 import { HiCheck, HiX } from "react-icons/hi";
 import { Timestamp } from "firebase/firestore";

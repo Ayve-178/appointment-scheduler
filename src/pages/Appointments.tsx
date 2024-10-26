@@ -9,10 +9,10 @@ import {
   getScheduledSessions,
   getSentInvitations,
   getUsernameByUid,
-} from "../config/firestoreConfig";
+} from "../config/firestoreRepos";
 import AppointmentStatus from "../components/AppointmentStatus";
 import { Timestamp } from "firebase/firestore";
-import { updateAppointmentStatusQuery } from "../config/firestoreConfig";
+import { updateAppointmentStatusQuery } from "../config/firestoreRepos";
 import { Datepicker, Dropdown } from "flowbite-react";
 import AppointmentDetailsModal from "../components/AppointmentDetailsModal";
 

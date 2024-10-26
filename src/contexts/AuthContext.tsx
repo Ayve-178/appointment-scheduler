@@ -14,7 +14,7 @@ import {
   UserCredential,
 } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
-import { createNewUser } from "../config/firestoreConfig";
+import { createNewUser } from "../config/firestoreRepos";
 
 interface AuthContextType {
   currentUser: User | null;
