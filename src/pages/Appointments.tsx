@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Table } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
@@ -18,6 +18,7 @@ import AppointmentDetailsModal from "../components/AppointmentDetailsModal";
 
 const Appointments: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { category } = location.state || {};
   const { currentUser } = useAuth();
   const [username, setUsername] = useState(null);
@@ -62,7 +63,7 @@ const Appointments: React.FC = () => {
       await updateAppointmentStatusQuery(appointmentId, updatedStatus);
 
       //@ts-ignore
-      setAppointmentList((prevAppointments) =>
+      setFilteredAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
           //@ts-ignore
           appointment.id === appointmentId
@@ -108,6 +109,8 @@ const Appointments: React.FC = () => {
         if (status === "pending") {
           return renderStatus(["pending", "cancel"]);
         } else if (status === "cancelled") {
+          return renderStatus([status]);
+        } else if (status === "declined") {
           return renderStatus([status]);
         } else {
           return renderStatus([status, "cancel"]);
@@ -169,6 +172,12 @@ const Appointments: React.FC = () => {
     setAppointment(appointment);
     openModal();
   };
+
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
 
   useEffect(() => {
     getCurrentUserName();

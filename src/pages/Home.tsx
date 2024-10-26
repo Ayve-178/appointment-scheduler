@@ -16,12 +16,9 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (!currentUser) {
-      console.log("coming...");
       navigate("/login");
     }
   }, [currentUser, navigate]);
-
-  console.log("curr", currentUser);
 
   return (
     <div className="p-2">
