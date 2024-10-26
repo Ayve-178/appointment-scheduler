@@ -15,8 +15,6 @@ const AppointmentStatus: React.FC<AppointmentStatusProps> = ({
   id,
   updateStatus,
 }) => {
-  console.log(status, id);
-
   return (
     <>
       {(status === "pending" && (
