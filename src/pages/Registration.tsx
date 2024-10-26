@@ -19,8 +19,6 @@ const Registration: React.FC = () => {
       console.error(err);
       setError((err as Error).message);
     }
-
-    console.log("Form Submitted", username, password);
   };
 
   return (

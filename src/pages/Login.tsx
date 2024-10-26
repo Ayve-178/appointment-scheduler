@@ -15,11 +15,8 @@ const Login: React.FC = () => {
       await login(username, password);
       navigate("/");
     } catch (err) {
-      console.error(err);
       setError((err as Error).message);
     }
-
-    console.log("Form Submitted", username, password);
   };
 
   return (

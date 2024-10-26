@@ -56,7 +56,6 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-    console.log("File selected:", file);
   };
 
   const handleFileDelete = () => {

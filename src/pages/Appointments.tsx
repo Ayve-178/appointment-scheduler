@@ -192,14 +192,13 @@ const Appointments: React.FC = () => {
   }, [selectedStatus, filteredDate]);
 
   return (
-    <div className="overflow-x-auto p-10">
-      <div className="flex gap-x-3 justify-end mb-4 text-center">
+    <div className="overflow-x-auto p-10 min-h-[500px]">
+      <div className="flex gap-x-3 justify-end mb-4 text-center overflow-visible">
         <Datepicker
           name="date"
           placeholder="Select Date"
           value={filteredDate ? new Date(filteredDate) : null}
           onChange={handleDateChange}
-          className="h-full"
         />
         <Dropdown
           label={
@@ -241,7 +240,7 @@ const Appointments: React.FC = () => {
           <Table.Body className="divide-y text-center">
             {filteredAppointments.length > 0 &&
               filteredAppointments.map((appointment: any) => (
-                <Table.Row className="bg-white">
+                <Table.Row key={appointment.id} className="bg-white">
                   <Table.Cell className="hidden md:table-cell">{appointment.schedulerName}</Table.Cell>
                   <Table.Cell className="hidden md:table-cell">{appointment.holderName}</Table.Cell>
                   <Table.Cell className="cursor-pointer underline" onClick={() => handleShowDetails(appointment)}>

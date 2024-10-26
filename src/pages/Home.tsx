@@ -47,7 +47,7 @@ const Home: React.FC = () => {
         <AppointmentCard
           icon={<MdOutlineContentPasteGo className="w-12 h-12" />}
           appointmentType="Invitations Sent"
-          description="The appointments where you've been invited as a participant."
+          description="The appointments where you requested someone for their schedule."
           buttonText="View Sent Invitations"
           category="invite_sent"
         />

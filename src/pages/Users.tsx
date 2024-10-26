@@ -38,7 +38,6 @@ const Users: React.FC = () => {
     //@ts-ignore
     const sName = await getUsernameByUid(currentUser.uid);
     const hName = await getUsernameByUid(holderUid);
-    console.log(sName, hName);
     setSchedulerName(sName || "unknown");
     setHolderName(hName || "unknown");
   };
@@ -83,9 +82,7 @@ const Users: React.FC = () => {
         status: "pending",
       });
 
-      console.log("Apppointmenttt Fooorm Dataaaa", formData);
     } catch (e: any) {
-      console.log((e as Error).message);
       setErrMsg((e as Error).message);
     }
     handleCloseModal();
@@ -110,7 +107,6 @@ const Users: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    console.log("HandleSearch is calling");
     if (searchVal) {
       const searchUsersList = await searchUsers(searchVal);
       //@ts-ignore
