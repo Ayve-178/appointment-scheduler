@@ -223,7 +223,7 @@ const Appointments: React.FC = () => {
             <Table.HeadCell className="hidden md:table-cell">Scheduler</Table.HeadCell>
             <Table.HeadCell className="hidden md:table-cell">Holder</Table.HeadCell>
             <Table.HeadCell>Title</Table.HeadCell>
-            <Table.HeadCell>Date</Table.HeadCell>
+            <Table.HeadCell className="hidden md:table-cell">Date</Table.HeadCell>
             <Table.HeadCell className="hidden md:table-cell">Time</Table.HeadCell>
             <Table.HeadCell className="hidden md:table-cell">Duration</Table.HeadCell>
             <Table.HeadCell>Action</Table.HeadCell>
@@ -234,10 +234,10 @@ const Appointments: React.FC = () => {
                 <Table.Row className="bg-white">
                   <Table.Cell className="hidden md:table-cell">{appointment.schedulerName}</Table.Cell>
                   <Table.Cell className="hidden md:table-cell">{appointment.holderName}</Table.Cell>
-                  <Table.Cell className="cursor-pointer" onClick={() => handleShowDetails(appointment)}>
+                  <Table.Cell className="cursor-pointer underline" onClick={() => handleShowDetails(appointment)}>
                     {appointment.title}
                   </Table.Cell>
-                  <Table.Cell>{getDate(appointment.date)}</Table.Cell>
+                  <Table.Cell className="hidden md:table-cell">{getDate(appointment.date)}</Table.Cell>
                   <Table.Cell className="hidden md:table-cell">{appointment.time}</Table.Cell>
                   <Table.Cell className="hidden md:table-cell">{appointment.duration}</Table.Cell>
                   <Table.Cell className="flex gap-x-1 justify-center content-center">
