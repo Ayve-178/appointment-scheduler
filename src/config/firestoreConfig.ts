@@ -10,6 +10,7 @@ import {
   startAt,
   endAt,
   Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db, storage } from "./firebaseConfig";
 import { Appointment } from "../types";
@@ -189,5 +190,16 @@ export const getSentInvitations = async (username:string) => {
 
   return sentInvitations;
 }
+
+export const updateAppointmentStatusQuery = async (appointmentId: string, updatedStatus: string) => {
+  
+    const appointmentRef = doc(db, "appointments", appointmentId);
+    await updateDoc(appointmentRef, {
+      status: updatedStatus
+    });
+
+    console.log(`Appointment ${appointmentId} status updated to ${updatedStatus}`);
+  
+};
 
 

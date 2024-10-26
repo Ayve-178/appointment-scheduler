@@ -12,6 +12,7 @@ import {
 } from "../config/firestoreConfig";
 import AppointmentStatus from "../components/AppointmentStatus";
 import { Timestamp } from "firebase/firestore";
+import { updateAppointmentStatusQuery } from "../config/firestoreConfig";
 
 const Appointments: React.FC = () => {
   const location = useLocation();
@@ -22,22 +23,22 @@ const Appointments: React.FC = () => {
 
   const getAppointmentStatus = (category: string, appointment: any) => {
     if (category === "past") {
-      return <AppointmentStatus status={appointment.status} />;
+      return <AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status={appointment.status} />;
     } else if (category === "scheduled") {
-      return <AppointmentStatus status="accepted" />;
+      return <AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status="accepted" />;
     } else if (category === 'invite_received') {
       if (appointment.status === "pending") {
-        return <><AppointmentStatus status="accept" /><AppointmentStatus status="decline" /></>
+        return <><AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status="accept" /><AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status="decline" /></>
       } else {
-        return <AppointmentStatus status={appointment.status} />;
+        return <AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status={appointment.status} />;
       }
     } else if (category === 'invite_sent') {
       if (appointment.status === "pending") {
-        return <><AppointmentStatus status="pending" /><AppointmentStatus status="cancel" /></>
+        return <><AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status="pending" /><AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status="cancel" /></>
       } else if (appointment.status === "cancelled") {
-        return <AppointmentStatus status={appointment.status} />;
+        return <AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status={appointment.status} />;
       } else {
-        return <><AppointmentStatus status={appointment.status} /><AppointmentStatus status="cancel" /></>
+        return <><AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status={appointment.status} /><AppointmentStatus updateStatus={updateAppointmentStatus} id={appointment.id} status="cancel" /></>
       }
     }
   };
@@ -93,6 +94,27 @@ const Appointments: React.FC = () => {
     ).padStart(2, "0")}-${String(validDate.getDate()).padStart(2, "0")}`;
     return dateNew;
   };
+
+  const updateAppointmentStatus = async (appointmentId:string, updatedStatus:string) => {
+    try {
+      await updateAppointmentStatusQuery(appointmentId, updatedStatus);
+      console.log(`Status updated to ${updatedStatus}`);
+
+      //@ts-ignore
+      setAppointmentList((prevAppointments) =>
+        prevAppointments.map((appointment) =>
+          //@ts-ignore
+          appointment.id === appointmentId
+          //@ts-ignore
+            ? { ...appointment, status: updatedStatus }
+            : appointment
+        )
+      );
+
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+    }
+  }
 
   useEffect(() => {
     if (category === "past") {
