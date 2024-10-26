@@ -14,7 +14,7 @@ import AppointmentStatus from "../components/AppointmentStatus";
 import { Timestamp } from "firebase/firestore";
 import { updateAppointmentStatusQuery } from "../config/firestoreConfig";
 import { Datepicker, Dropdown } from "flowbite-react";
-
+import AppointmentDetailsModal from "../components/AppointmentDetailsModal";
 
 const Appointments: React.FC = () => {
   const location = useLocation();
@@ -24,7 +24,12 @@ const Appointments: React.FC = () => {
   const [appointmentList, setAppointmentList] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filteredDate, setFilteredDate] = useState<Date | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [appointment, setAppointment] = useState(null);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const getCurrentUserName = async () => {
     //@ts-ignore
@@ -32,17 +37,17 @@ const Appointments: React.FC = () => {
     setUsername(currentUserName);
   };
 
-  const fetchSessions = async (type:string) => {
+  const fetchSessions = async (type: string) => {
     let fetchedAppointments;
-    if (type === 'past') {
-      fetchedAppointments = await getPastSessions(username || '');
-    } else if (type === 'scheduled') {
-      fetchedAppointments = await getScheduledSessions(username || '');
-    } else if (type === 'invite_received') {
-      fetchedAppointments = await getReceivedInvitations(username || '');
-    } else if (type === 'invite_sent') {
-      fetchedAppointments = await getSentInvitations(username || '');
-    } 
+    if (type === "past") {
+      fetchedAppointments = await getPastSessions(username || "");
+    } else if (type === "scheduled") {
+      fetchedAppointments = await getScheduledSessions(username || "");
+    } else if (type === "invite_received") {
+      fetchedAppointments = await getReceivedInvitations(username || "");
+    } else if (type === "invite_sent") {
+      fetchedAppointments = await getSentInvitations(username || "");
+    }
     //@ts-ignore
     setAppointmentList(fetchedAppointments);
     //@ts-ignore
@@ -73,25 +78,32 @@ const Appointments: React.FC = () => {
 
   const getAppointmentStatus = (category: string, appointment: any) => {
     const { id, status } = appointment;
-  
+
     const renderStatus = (statuses: string[]) => (
       <>
         {statuses.map((s) => (
-          <AppointmentStatus key={`${id}-${s}`} updateStatus={updateAppointmentStatus} id={id} status={s} />
+          <AppointmentStatus
+            key={`${id}-${s}`}
+            updateStatus={updateAppointmentStatus}
+            id={id}
+            status={s}
+          />
         ))}
       </>
     );
-  
+
     switch (category) {
       case "past":
         return renderStatus([status]);
-  
+
       case "scheduled":
         return renderStatus(["accepted"]);
-  
+
       case "invite_received":
-        return status === "pending" ? renderStatus(["accept", "decline"]) : renderStatus([status]);
-  
+        return status === "pending"
+          ? renderStatus(["accept", "decline"])
+          : renderStatus([status]);
+
       case "invite_sent":
         if (status === "pending") {
           return renderStatus(["pending", "cancel"]);
@@ -100,7 +112,7 @@ const Appointments: React.FC = () => {
         } else {
           return renderStatus([status, "cancel"]);
         }
-  
+
       default:
         return null;
     }
@@ -121,39 +133,45 @@ const Appointments: React.FC = () => {
 
   const handleDateChange = (date: Date | null) => {
     setFilteredDate(date);
-  }
+  };
 
-  const handleDropDownChange = (status:string) => {
+  const handleDropDownChange = (status: string) => {
     setSelectedStatus(status);
   };
 
   const conditionFilter = () => {
-    if (filteredDate === null && selectedStatus === 'all') {
+    if (filteredDate === null && selectedStatus === "all") {
       setFilteredAppointments(appointmentList);
       return;
     }
-  
+
     const filtered = appointmentList.filter((appointment) => {
-      const appointmentDate = appointment.date.toDate();
-      const updatedFilteredDate = getDate(filteredDate);
-  
-      if (updatedFilteredDate && appointmentDate.toISOString().slice(0, 10) !== updatedFilteredDate) {
-        console.log('datesssssssssss', appointmentDate.toISOString().slice(0, 10), '----------', updatedFilteredDate)
-        return false; 
+      if (filteredDate) {
+        const appointmentDate = appointment.date.toDate();
+        const updatedFilteredDate = getDate(filteredDate);
+    
+        if (updatedFilteredDate && appointmentDate.toISOString().slice(0, 10) !== updatedFilteredDate) {
+          return false; 
+        }
       }
-  
+      
       if (selectedStatus && selectedStatus !== 'all' && appointment.status !== selectedStatus) {
-        console.log(selectedStatus, appointment.status);
+        console.log("-----status----", selectedStatus, appointment.status)
         return false; 
       }
   
       return true; 
     });
-  
-    console.log('###############', filtered);
+
+    console.log("###############", filtered);
     setFilteredAppointments(filtered);
-  };  
-  
+  };
+
+  const handleShowDetails = (appointment: any) => {
+    setAppointment(appointment);
+    openModal();
+  };
+
   useEffect(() => {
     getCurrentUserName();
   }, [currentUser]);
@@ -168,65 +186,59 @@ const Appointments: React.FC = () => {
 
   return (
     <div className="overflow-x-auto p-10">
+      <div className="flex gap-x-3 justify-end mb-4">
+        <Datepicker
+          name="date"
+          placeholder="Select Date"
+          value={filteredDate ? new Date(filteredDate) : null}
+          onChange={handleDateChange}
+        />
+        <Dropdown
+          label={
+            <span className="text-gray-800 border-gray-800">
+              {selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1)}
+            </span>
+          }
+          dismissOnClick={false}
+          inline
+        >
+          {["all", "pending", "accepted", "declined", "cancelled"].map(
+            (status) => (
+              <Dropdown.Item
+                key={status}
+                onClick={() => handleDropDownChange(status)}
+                className={
+                  selectedStatus === status
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-900"
+                }
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </Dropdown.Item>
+            )
+          )}
+        </Dropdown>
+      </div>
       {(filteredAppointments && filteredAppointments.length > 0 && (
-        <div>
-          <Datepicker
-            name="date"
-            placeholder="Select Date"
-            value={filteredDate ? new Date(filteredDate) : null}
-            onChange={handleDateChange}
-          />
-          <Dropdown
-      label={selectedStatus} 
-      dismissOnClick={false}
-      className="bg-gray-900 text-white"
-    >
-      <Dropdown.Item
-        onClick={() => handleDropDownChange('all')}     className={selectedStatus === "all" ? "bg-blue-500 text-white" : "text-gray-200"}
-      >
-        All
-      </Dropdown.Item>
-      <Dropdown.Item
-        onClick={() => handleDropDownChange('pending')} 
-        className={selectedStatus === "pending" ? "bg-blue-500 text-white" : "text-gray-200"}
-      >
-        Pending
-      </Dropdown.Item>
-      <Dropdown.Item
-        onClick={() => handleDropDownChange('accepted')} 
-        className={selectedStatus === "accepted" ? "bg-blue-500 text-white" : "text-gray-200"}
-      >
-        Accepted
-      </Dropdown.Item>
-      <Dropdown.Item
-        onClick={() => handleDropDownChange('declined')} 
-        className={selectedStatus === "declined" ? "bg-blue-500 text-white" : "text-gray-200"}
-      >
-        Declined
-      </Dropdown.Item>
-      <Dropdown.Item
-        onClick={() => handleDropDownChange('cancelled')} 
-        className={selectedStatus === "cancelled" ? "bg-blue-500 text-white" : "text-gray-200"}
-      >
-        Cancelled
-      </Dropdown.Item>
-    </Dropdown>
-          <Table hoverable>
-            <Table.Head>
-              <Table.HeadCell>Scheduler</Table.HeadCell>
-              <Table.HeadCell>Holder</Table.HeadCell>
-              <Table.HeadCell>Title</Table.HeadCell>
-              <Table.HeadCell>Date</Table.HeadCell>
-              <Table.HeadCell>Time</Table.HeadCell>
-              <Table.HeadCell>Duration</Table.HeadCell>
-              <Table.HeadCell>Action</Table.HeadCell>
-            </Table.Head>
-            <Table.Body className="divide-y">
-              {filteredAppointments.length > 0 && filteredAppointments.map((appointment: any) => (
+        <Table hoverable>
+          <Table.Head>
+            <Table.HeadCell>Scheduler</Table.HeadCell>
+            <Table.HeadCell>Holder</Table.HeadCell>
+            <Table.HeadCell>Title</Table.HeadCell>
+            <Table.HeadCell>Date</Table.HeadCell>
+            <Table.HeadCell>Time</Table.HeadCell>
+            <Table.HeadCell>Duration</Table.HeadCell>
+            <Table.HeadCell>Action</Table.HeadCell>
+          </Table.Head>
+          <Table.Body className="divide-y">
+            {filteredAppointments.length > 0 &&
+              filteredAppointments.map((appointment: any) => (
                 <Table.Row className="bg-white">
                   <Table.Cell>{appointment.schedulerName}</Table.Cell>
                   <Table.Cell>{appointment.holderName}</Table.Cell>
-                  <Table.Cell>{appointment.title}</Table.Cell>
+                  <Table.Cell className="cursor-pointer" onClick={() => handleShowDetails(appointment)}>
+                    {appointment.title}
+                  </Table.Cell>
                   <Table.Cell>{getDate(appointment.date)}</Table.Cell>
                   <Table.Cell>{appointment.time}</Table.Cell>
                   <Table.Cell>{appointment.duration}</Table.Cell>
@@ -235,10 +247,17 @@ const Appointments: React.FC = () => {
                   </Table.Cell>
                 </Table.Row>
               ))}
-            </Table.Body>
-          </Table>
-        </div>
+          </Table.Body>
+        </Table>
       )) || <div>No data available</div>}
+
+      {isModalOpen && (
+        <AppointmentDetailsModal
+          openModal={isModalOpen}
+          handleCloseModal={closeModal}
+          appointment={appointment}
+        />
+      )}
     </div>
   );
 };
