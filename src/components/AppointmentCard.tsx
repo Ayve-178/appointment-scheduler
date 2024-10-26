@@ -1,9 +1,9 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Card } from "flowbite-react";
 import { Link } from "react-router-dom";
 
 interface AppointmentCardProps {
-  count: number;
+  icon: ReactNode;
   appointmentType: string;
   description: string;
   buttonText: string;
@@ -11,19 +11,19 @@ interface AppointmentCardProps {
 }
 
 const AppointmentCard: React.FC<AppointmentCardProps> = ({
-  count,
+  icon,
   appointmentType,
   description,
   buttonText,
   category,
 }) => {
   return (
-    <Card className="w-[350px] text-center">
-      <h5 className="text-3xl text-center font-bold tracking-tight text-gray-900">
-        {count}
+    <Card className="w-[300px] text-center">
+      <h5 className="text-3xl flex justify-center font-bold tracking-tight text-gray-900">
+        {icon}
       </h5>
       <p className="font-semibold text-lg text-gray-700">{appointmentType}</p>
-      <p className="font-normal text-[15px] text-gray-700">{description}</p>
+      <p className="font-normal text-[12px] text-gray-700">{description}</p>
       <Link
         to={{
           pathname: "/appointments",

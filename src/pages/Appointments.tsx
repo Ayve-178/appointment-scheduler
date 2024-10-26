@@ -156,14 +156,12 @@ const Appointments: React.FC = () => {
       }
       
       if (selectedStatus && selectedStatus !== 'all' && appointment.status !== selectedStatus) {
-        console.log("-----status----", selectedStatus, appointment.status)
         return false; 
       }
   
       return true; 
     });
 
-    console.log("###############", filtered);
     setFilteredAppointments(filtered);
   };
 
@@ -186,7 +184,7 @@ const Appointments: React.FC = () => {
 
   return (
     <div className="overflow-x-auto p-10">
-      <div className="flex gap-x-3 justify-end mb-4">
+      <div className="flex gap-x-3 justify-end mb-4 text-center">
         <Datepicker
           name="date"
           placeholder="Select Date"
@@ -221,35 +219,35 @@ const Appointments: React.FC = () => {
       </div>
       {(filteredAppointments && filteredAppointments.length > 0 && (
         <Table hoverable>
-          <Table.Head>
-            <Table.HeadCell>Scheduler</Table.HeadCell>
-            <Table.HeadCell>Holder</Table.HeadCell>
+          <Table.Head className="text-center">
+            <Table.HeadCell className="hidden md:table-cell">Scheduler</Table.HeadCell>
+            <Table.HeadCell className="hidden md:table-cell">Holder</Table.HeadCell>
             <Table.HeadCell>Title</Table.HeadCell>
             <Table.HeadCell>Date</Table.HeadCell>
-            <Table.HeadCell>Time</Table.HeadCell>
-            <Table.HeadCell>Duration</Table.HeadCell>
+            <Table.HeadCell className="hidden md:table-cell">Time</Table.HeadCell>
+            <Table.HeadCell className="hidden md:table-cell">Duration</Table.HeadCell>
             <Table.HeadCell>Action</Table.HeadCell>
           </Table.Head>
-          <Table.Body className="divide-y">
+          <Table.Body className="divide-y text-center">
             {filteredAppointments.length > 0 &&
               filteredAppointments.map((appointment: any) => (
                 <Table.Row className="bg-white">
-                  <Table.Cell>{appointment.schedulerName}</Table.Cell>
-                  <Table.Cell>{appointment.holderName}</Table.Cell>
+                  <Table.Cell className="hidden md:table-cell">{appointment.schedulerName}</Table.Cell>
+                  <Table.Cell className="hidden md:table-cell">{appointment.holderName}</Table.Cell>
                   <Table.Cell className="cursor-pointer" onClick={() => handleShowDetails(appointment)}>
                     {appointment.title}
                   </Table.Cell>
                   <Table.Cell>{getDate(appointment.date)}</Table.Cell>
-                  <Table.Cell>{appointment.time}</Table.Cell>
-                  <Table.Cell>{appointment.duration}</Table.Cell>
-                  <Table.Cell className="flex gap-x-1">
+                  <Table.Cell className="hidden md:table-cell">{appointment.time}</Table.Cell>
+                  <Table.Cell className="hidden md:table-cell">{appointment.duration}</Table.Cell>
+                  <Table.Cell className="flex gap-x-1 justify-center content-center">
                     {getAppointmentStatus(category, appointment)}
                   </Table.Cell>
                 </Table.Row>
               ))}
           </Table.Body>
         </Table>
-      )) || <div>No data available</div>}
+      )) || <div className="text-center font-semibold">NO DATA AVAILABLE</div>}
 
       {isModalOpen && (
         <AppointmentDetailsModal

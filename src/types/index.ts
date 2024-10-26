@@ -26,3 +26,4 @@ export interface Appointment {
   status: string;
   createdAt?: Date;
 };
+

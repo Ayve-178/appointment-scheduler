@@ -30,7 +30,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     title: "",
     description: "",
     date: new Date(),
-    time: "",
+    time: "00:00",
     duration: null,
   });
 

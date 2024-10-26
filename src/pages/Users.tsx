@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 import { useAuth } from "../contexts/AuthContext";
 import {
   getAllUsers,
@@ -19,7 +18,7 @@ import { Timestamp } from "firebase/firestore";
 
 const Users: React.FC = () => {
   const { currentUser } = useAuth();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [searchVal, setSearchVal] = useState("");
@@ -121,9 +120,9 @@ const Users: React.FC = () => {
   };
 
   useEffect(() => {
-    // if (!currentUser) {
-    //   navigate("/login");
-    // }
+    if (!currentUser) {
+      navigate("/login");
+    }
     fetchUsers();
   }, [currentUser]);
 

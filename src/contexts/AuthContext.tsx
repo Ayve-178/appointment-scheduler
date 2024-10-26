@@ -21,6 +21,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<UserCredential>;
   register: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  loading: boolean; // Added loading to context
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -39,36 +40,67 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) =>
-      setCurrentUser(user)
-    );
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false); // Stop loading once Firebase completes user check
+    });
     return () => unsubscribe();
   }, []);
 
-  const register = async (username: string, password: string) => {
-    const userEmail = `${username}@myemail.com`;
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      userEmail,
-      password
-    );
-    const user = userCredential.user;
-    console.log(user);
-
-    await createNewUser(user.uid, username);
+  const getErrorMessage = (code: string) => {
+    switch (code) {
+      case "auth/weak-password":
+        return "Password should be at least 6 characters.";
+      case "auth/email-already-in-use":
+        return "Username already exists.";
+      case "auth/invalid-email":
+        return "Please enter a valid username.";
+      case "auth/user-not-found":
+        return "User not found.";
+      case "auth/wrong-password":
+        return "Incorrect password. Please try again.";
+      default:
+        return "An error occurred. Please try again.";
+    }
   };
-  
-  const login = (username: string, password: string) => {
-    const userEmail = `${username}@myemail.com`;
-    return signInWithEmailAndPassword(auth, userEmail, password);
+
+  const register = async (username: string, password: string) => {
+    try {
+      const userEmail = `${username}@myemail.com`;
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        userEmail,
+        password
+      );
+      const user = userCredential.user;
+      await createNewUser(user.uid, username);
+    } catch (error: any) {
+      throw new Error(getErrorMessage(error.code));
+    }
+  };
+
+  const login = async (username: string, password: string) => {
+    try {
+      const userEmail = `${username}@myemail.com`;
+      return await signInWithEmailAndPassword(auth, userEmail, password);
+    } catch (error: any) {
+      throw new Error(getErrorMessage(error.code));
+    }
   };
 
   const logout = () => signOut(auth);
 
+  if (loading) {
+    return <div className="text-center">Loading...</div>;
+  }
+
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ currentUser, login, register, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
