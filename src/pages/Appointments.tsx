@@ -199,6 +199,7 @@ const Appointments: React.FC = () => {
           placeholder="Select Date"
           value={filteredDate ? new Date(filteredDate) : null}
           onChange={handleDateChange}
+          className="h-full"
         />
         <Dropdown
           label={
